@@ -192,7 +192,7 @@ def route_between(
 
 
 def order_stops(stops: list[dict], mode: str = "walk", buffer_m: int = DEFAULT_BUFFER_M) -> dict:
-    """Visiting order that minimises total travel time, starting at the first stop.
+    """Visiting order that minimizes total travel time, starting at the first stop.
 
     The search is exhaustive over orderings of the remaining stops, so the
     answer is optimal for this travel-time matrix rather than a heuristic.

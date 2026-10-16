@@ -7,12 +7,12 @@ Run from the project root, with the virtualenv active:
 
 The travel mode matters for how long this takes, not for whether it works. A
 walking network includes every footpath, so the first download and graph build
-for a city neighbourhood can take minutes; a driving network over the same area
+for a city neighborhood can take minutes; a driving network over the same area
 is far smaller. Both are cached afterwards.
 
 This is not the test suite -- it reaches OpenStreetMap, so it needs a network
 connection and it is the quickest way to see that the server's answers are
-real. Failures print as failures, which is the intended behaviour.
+real. Failures print as failures, which is the intended behavior.
 """
 
 import json

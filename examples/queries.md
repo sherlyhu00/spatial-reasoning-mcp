@@ -29,10 +29,10 @@ matrix over the street network, and searches all 6 orderings. The result states
 
 ## 3. A lookup that should fail loudly
 
-> Which neighbourhood is 33.78, -84.38 in?
+> Which neighborhood is 33.78, -84.38 in?
 
 `point_in_region` needs a boundary layer. Without one it raises rather than
-naming a neighbourhood from memory. Given a layer, the result names the file
+naming a neighborhood from memory. Given a layer, the result names the file
 the answer came from.
 
 ## 4. A place that does not exist

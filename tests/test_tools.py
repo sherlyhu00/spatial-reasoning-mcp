@@ -1,7 +1,7 @@
 """Tests for the computation that does not depend on a network call.
 
 The geocoding and routing tools reach OpenStreetMap, so they are checked here
-only for the behaviour that matters most: that they fail loudly rather than
+only for the behavior that matters most: that they fail loudly rather than
 returning a value when they cannot compute one.
 """
 
