@@ -121,8 +121,56 @@ python eval/latency.py 5        # per-tool latency, local and network separated
 python eval/scaling.py          # how cost grows with the number of stops
 ```
 
-Measured on this machine: the ordering search runs 5,040 orderings for eight
-stops in about 7 ms, and one more stop multiplies that by eight.
+### Results
+
+Measured 17 October 2026 on an M-series MacBook Air, routing backend
+`valhalla` against the public FOSSGIS instance, client in Shanghai.
+
+**Accuracy of `distance_between`**, 12 pairs from 1 km to 27 km, scored against
+geopy's WGS84 geodesic:
+
+| | |
+|---|---|
+| median error | 0.177 % |
+| worst error | 0.308 % |
+
+That is the cost of modelling the Earth as a sphere rather than an ellipsoid,
+and it is now a measured bound rather than an assumption. At 25 km the worst
+case is about 75 m. The approximation is kept because it needs no dependency
+and no network; anything needing survey accuracy should use a geodesic.
+
+**Latency**, median of five calls:
+
+| tool | median |
+|---|---|
+| `distance_between` | under 0.1 ms |
+| `geocode_place` | 994 ms |
+| `reverse_geocode` | 1,031 ms |
+| `route_between` | 1,025 ms |
+
+The two geocoding figures are dominated by the one-request-per-second limit the
+client enforces for Nominatim, not by the service. The routing figure is a real
+round trip to Germany; a nearer or self-hosted Valhalla would cut it.
+
+**Scaling** of `order_stops`, against a stub router so the figure is this
+project's own search:
+
+| stops | orderings | search |
+|---|---|---|
+| 4 | 6 | 0.02 ms |
+| 6 | 120 | 0.10 ms |
+| 8 | 5,040 | 4.51 ms |
+
+Each additional stop multiplies the search by n−1: nine stops would be 8x the
+work of eight, twelve stops 7,920x. The eight-stop limit is where exhaustive
+search stops being affordable, and therefore where the word "optimal" would
+stop being honest.
+
+**Not measured.** Whether an agent using these tools answers better than one
+answering from memory. That needs an end-to-end agent benchmark with a task set
+and a definition of correct, which this evaluation does not attempt. What is
+measured above is the accuracy of the computation the tools perform, and the
+cost of performing it.
 
 ## Limitations
 
