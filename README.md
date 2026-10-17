@@ -129,15 +129,31 @@ Measured 17 October 2026 on an M-series MacBook Air, routing backend
 **Accuracy of `distance_between`**, 12 pairs from 1 km to 27 km, scored against
 geopy's WGS84 geodesic:
 
-| | |
-|---|---|
-| median error | 0.177 % |
-| worst error | 0.308 % |
+| | median error | worst error |
+|---|---|---|
+| this server | 0.18 % | 0.31 % |
+| [MODEL NAME], from memory, no tools | 1.7 % | 13.1 % |
 
-That is the cost of modelling the Earth as a sphere rather than an ellipsoid,
-and it is now a measured bound rather than an assumption. At 25 km the worst
-case is about 75 m. The approximation is kept because it needs no dependency
-and no network; anything needing survey accuracy should use a geodesic.
+The server's error is the cost of modeling the Earth as a sphere rather than an
+ellipsoid. It is now a measured bound rather than an assumption: at 25 km the
+worst case is about 75 m. The approximation is kept because it needs no
+dependency and no network; anything needing survey accuracy should use a
+geodesic.
+
+Three things matter more than the ratio of medians.
+
+The benchmark favors the model. All twelve pairs are world-famous landmarks
+whose distances appear repeatedly in text. On ordinary streets or census-tract
+centroids the gap would be wider, so 9x is a floor, not a typical figure.
+
+The model's error is unpredictable rather than large. It was 0.2 % on the
+Eiffel Tower pair and 13.1 % on the Georgia Tech pair, with nothing in either
+answer to say which kind it was. The server's error has a known ceiling.
+
+The model's absolute error barely tracks distance: about 110 m typically and up
+to 550 m, whether the question spans 1 km or 27 km. Relative error is therefore
+worst at short range, which is the range that first- and last-mile and
+itinerary questions live in.
 
 **Latency**, median of five calls:
 
