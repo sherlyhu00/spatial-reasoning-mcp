@@ -106,6 +106,24 @@ returning a value they could not compute. `order_stops` is tested against a
 known travel-time matrix, so its optimality claim is checked rather than
 assumed.
 
+## Evaluation
+
+Three harnesses in `eval/`, covering accuracy, latency and scaling. Each states
+what it measured against: distance is scored against geopy's geodesic rather
+than against this server's own output, and routing is treated as having no
+absolute ground truth, because a travel time is whatever a particular network
+and speed model says it is. See `eval/README.md`.
+
+```bash
+python eval/make_benchmark.py   # resolve and freeze 12 place pairs
+python eval/accuracy.py         # error against an independent geodesic
+python eval/latency.py 5        # per-tool latency, local and network separated
+python eval/scaling.py          # how cost grows with the number of stops
+```
+
+Measured on this machine: the ordering search runs 5,040 orderings for eight
+stops in about 7 ms, and one more stop multiplies that by eight.
+
 ## Limitations
 
 The `osmnx` backend downloads a disc around the midpoint of the points it is

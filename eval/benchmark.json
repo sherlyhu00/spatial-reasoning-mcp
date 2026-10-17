@@ -1,0 +1,172 @@
+{
+  "pairs": [
+    {
+      "from": {
+        "query": "Georgia Institute of Technology, Atlanta",
+        "resolved": "Georgia Tech, Techwood Drive Northwest, Atlanta, Fulton County, Georgia, 30332, United States",
+        "lat": 33.7760948,
+        "lon": -84.3988077
+      },
+      "to": {
+        "query": "Piedmont Park, Atlanta",
+        "resolved": "Piedmont Park, 1320, Atlanta, Fulton County, Georgia, 30306, United States",
+        "lat": 33.7890478,
+        "lon": -84.3718862
+      }
+    },
+    {
+      "from": {
+        "query": "Georgia Aquarium, Atlanta",
+        "resolved": "Georgia Aquarium, 225, Baker Street Northwest, Atlanta, Fulton County, Georgia, 30313, United States",
+        "lat": 33.7632675,
+        "lon": -84.3951173
+      },
+      "to": {
+        "query": "Mercedes-Benz Stadium, Atlanta",
+        "resolved": "Mercedes-Benz Stadium, 1414, Andrew Young International Boulevard, Atlanta, Fulton County, Georgia, 30313, United States",
+        "lat": 33.7554123,
+        "lon": -84.4008493
+      }
+    },
+    {
+      "from": {
+        "query": "Hartsfield-Jackson Atlanta International Airport",
+        "resolved": "Hartsfield–Jackson Atlanta International Airport, 6000, North Terminal Parkway, Atlanta, Clayton County, Georgia, 30320, United States",
+        "lat": 33.6374009,
+        "lon": -84.4298161
+      },
+      "to": {
+        "query": "Georgia State Capitol, Atlanta",
+        "resolved": "Georgia State, Piedmont Avenue Southeast, Capitol Gateway, Atlanta, Fulton County, Georgia, 30303, United States",
+        "lat": 33.7501652,
+        "lon": -84.3859566
+      }
+    },
+    {
+      "from": {
+        "query": "Empire State Building, New York",
+        "resolved": "Empire State Building, 350, 5th Avenue, Koreatown, Manhattan Community Board 5, Manhattan, New York County, New York, 10118, United States",
+        "lat": 40.7484421,
+        "lon": -73.9856589
+      },
+      "to": {
+        "query": "Statue of Liberty, New York",
+        "resolved": "Statue of Liberty, Flagpole Plaza, Manhattan, New York County, New York, 10004, United States",
+        "lat": 40.6892532,
+        "lon": -74.0445482
+      }
+    },
+    {
+      "from": {
+        "query": "Golden Gate Bridge, San Francisco",
+        "resolved": "Golden Gate Bridge, San Francisco, California, 24129, United States",
+        "lat": 37.8074477,
+        "lon": -122.4759589
+      },
+      "to": {
+        "query": "Oakland City Hall, California",
+        "resolved": "Oakland City Hall, 1, Frank H. Ogawa Plaza, Downtown, Downtown Oakland, Oakland, Alameda County, California, 94612, United States",
+        "lat": 37.8053194,
+        "lon": -122.2725813
+      }
+    },
+    {
+      "from": {
+        "query": "Big Ben, London",
+        "resolved": "Big Ben, Bridge Street, Westminster, Millbank, City of Westminster, Greater London, England, SW1A 2JR, United Kingdom",
+        "lat": 51.5007042,
+        "lon": -0.1245721
+      },
+      "to": {
+        "query": "Heathrow Airport, London",
+        "resolved": "London Heathrow Airport, Western Perimeter Road, Harmondsworth, London Borough of Hillingdon, Greater London, England, TW6 2GX, United Kingdom",
+        "lat": 51.467739,
+        "lon": -0.4587801
+      }
+    },
+    {
+      "from": {
+        "query": "Eiffel Tower, Paris",
+        "resolved": "Tour Eiffel, 5, Avenue Anatole France, Quartier du Gros-Caillou, Paris 7e Arrondissement, Paris, Île-de-France, France métropolitaine, 75007, France",
+        "lat": 48.8582599,
+        "lon": 2.2945006
+      },
+      "to": {
+        "query": "Palace of Versailles, France",
+        "resolved": "Château de Versailles, La Cour de Marbre, Notre-Dame, Versailles, Yvelines, Île-de-France, France métropolitaine, 78000, France",
+        "lat": 48.8044252,
+        "lon": 2.1202853
+      }
+    },
+    {
+      "from": {
+        "query": "Tokyo Station, Japan",
+        "resolved": "東京駅(改札外), 丸の内一丁目, 丸の内, 千代田区, 東京都, 100-0005, 日本",
+        "lat": 35.680596,
+        "lon": 139.7649711
+      },
+      "to": {
+        "query": "Yokohama Station, Japan",
+        "resolved": "横浜, はまりんロード, 南幸一丁目, 南幸, 西区, 横浜市, 神奈川県, 231-0017, 日本",
+        "lat": 35.4653773,
+        "lon": 139.6201667
+      }
+    },
+    {
+      "from": {
+        "query": "The Bund, Shanghai",
+        "resolved": "外滩, 新北门, 外滩街道, 上海市, 黄浦区, 上海市, 200002, 中国",
+        "lat": 31.2353356,
+        "lon": 121.487632
+      },
+      "to": {
+        "query": "Shanghai Hongqiao Railway Station",
+        "resolved": "上海虹桥, 虹桥火车站出发, 新虹街道, 闵行区, 上海市, 201106, 中国",
+        "lat": 31.1959782,
+        "lon": 121.3162004
+      }
+    },
+    {
+      "from": {
+        "query": "Sydney Opera House",
+        "resolved": "Sydney Opera House, 2, Macquarie Street, Quay Quarter, Sydney, New South Wales, 2000, Australia",
+        "lat": -33.857198,
+        "lon": 151.2151234
+      },
+      "to": {
+        "query": "Bondi Beach, Sydney",
+        "resolved": "Bondi Beach, Eastern Suburbs, Sydney, New South Wales, 2026, Australia",
+        "lat": -33.8906977,
+        "lon": 151.2724119
+      }
+    },
+    {
+      "from": {
+        "query": "Brandenburg Gate, Berlin",
+        "resolved": "Brandenburger Tor, 1, Pariser Platz, Friedrich-Wilhelm-Stadt, Mitte, Berlin, 10117, Deutschland",
+        "lat": 52.5162699,
+        "lon": 13.3777034
+      },
+      "to": {
+        "query": "Potsdam Hauptbahnhof, Germany",
+        "resolved": "Potsdam Hauptbahnhof, Friedrich-List-Straße, Hauptbahnhof und Brauhausberg Nord, Potsdam, Brandenburg, 14473, Deutschland",
+        "lat": 52.3915165,
+        "lon": 13.0672235
+      }
+    },
+    {
+      "from": {
+        "query": "Union Station, Chicago",
+        "resolved": "Chicago Union Station, 210, South Canal Street, West Loop Gate, Near West Side, Chicago, West Chicago Township, Cook County, Illinois, 60606, United States",
+        "lat": 41.878701,
+        "lon": -87.6404084
+      },
+      "to": {
+        "query": "O'Hare International Airport, Chicago",
+        "resolved": "O'Hare International Airport, 10000, West Higgins Road, Chicago, Maine Township, Cook County, Illinois, 60666, United States",
+        "lat": 41.9799743,
+        "lon": -87.909816
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "_comment": "Straight-line distance in kilometres, as a model answers from memory with no tools. Keys are '<from query>|<to query>' exactly as they appear in benchmark.json.",
+  "Georgia Institute of Technology, Atlanta|Piedmont Park, Atlanta": 0.0,
+  "Empire State Building, New York|Statue of Liberty, New York": 0.0
+}

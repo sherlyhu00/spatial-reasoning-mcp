@@ -7,3 +7,6 @@ networkx>=3.0
 
 # tests
 pytest>=8.0
+
+# evaluation
+geopy>=2.4
