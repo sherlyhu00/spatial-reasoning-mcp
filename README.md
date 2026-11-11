@@ -1,226 +1,115 @@
-# spatial-reasoning-mcp
+# Spatial Reasoning MCP
 
-An MCP server that gives an LLM agent real geospatial computation as tools, so
-that spatial claims in an answer are computed from a named source rather than
-recalled from the model's parameters.
+Plan a day from a list of places and appointments. A local AI client calls this
+Python MCP server to resolve places, estimate travel time, check arrival
+constraints, and return an itinerary with map markers and calendar reminders.
+The same server also handles one-off questions about routes, distances, and
+geographic boundaries.
 
-## Plan a day with departure reminders
+## Quick start
 
-Ask your local MCP agent to resolve your starting point and destinations, then
-call `plan_day` with the stops in visiting order. Provide a start time, a time
-zone such as `Asia/Shanghai`, and a stay duration for each stop. Include
-`starts_at` on fixed appointments. The tool checks whether each appointment
-can be reached, and schedules flexible stops as early as possible.
+Use Python 3.10 or newer. From the repository root on macOS or Linux:
 
-For example: “Start from my hotel at 09:00, walk to the museum for 90 minutes,
-then arrive at the restaurant by 12:30. Leave 10 minutes of travel buffer and
-remind me 5 minutes before departure.”
-
-The tool returns a chronological list, WGS84 stop markers for Leaflet, and
-iCalendar text. Save the `ics` field as `itinerary.ics` and import it into
-a calendar with notifications enabled. Departure events carry a display alarm.
-The calendar app handles notification delivery, so the local agent can exit
-after generating the schedule. Calendar import behavior depends on the app.
-
-The route estimate uses the configured Valhalla or OSMnx backend. Calendar
-export is local. The tool takes the day's plans as input and does not access
-calendar accounts or monitor live traffic.
-
-## Why
-
-Ask a language model how far apart two places are, or how long a multi-stop
-trip takes, and it will produce a confident number. The number is often wrong,
-and nothing in the answer says where it came from.
-
-This server answers those questions with a tool call instead. Two rules follow:
-
-1. **Every result carries its provenance.** Each tool returns `result`,
-   `source` and `params`, so the caller can see what produced the value and
-   with which settings.
-2. **No silent fallback.** If a place cannot be resolved or a router is
-   unavailable, the tool raises. It does not return an estimate, because an
-   estimate that reads like a measurement is the problem this server addresses.
-
-## An example
-
-Georgia Tech to Piedmont Park, Atlanta:
-
-| | value | source |
-|---|---|---|
-| `distance_between` | 2,874.9 m | spherical distance, R = 6,371,008.8 m |
-| `route_between`, drive | 5,022.0 m, 12.7 min | OSM routing via Valhalla (auto) |
-
-The driving route is 1.75 times the straight line. A model answering from
-memory gives one number somewhere in that range, with no way to tell which
-quantity it meant. Both numbers above say what they are and what computed them.
-
-## Tools
-
-| Tool | What it does | Source |
-|---|---|---|
-| `geocode_place` | place name to coordinates | OSM / Nominatim |
-| `reverse_geocode` | coordinates to the nearest addressable place | OSM / Nominatim |
-| `distance_between` | great-circle distance between two points | spherical Earth model |
-| `point_in_region` | which polygon of a GeoJSON layer contains a point | the layer you pass in |
-| `route_between` | network distance and travel time | OSM routing (see backends) |
-| `order_stops` | visiting order with the shortest total travel time | OSM routing (see backends) |
-
-`order_stops` searches orderings exhaustively and accepts at most eight stops,
-so the order it returns is optimal for its travel-time matrix rather than a
-heuristic the caller has to trust.
-
-## Install and run
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python -m spatial_reasoning_mcp
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install .
+codex mcp add spatial-reasoning -- "$(pwd)/.venv/bin/python" -m spatial_reasoning_mcp
+codex mcp list
 ```
 
-The server communicates over stdio, so on its own it will sit there waiting for
-a client. Register it with one (Claude Desktop, Claude Code, Cursor):
+Start a new Codex session to load the server. In another MCP client, configure a
+local stdio server with the absolute path to `.venv/bin/python` as its command
+and `-m spatial_reasoning_mcp` as its arguments. The client starts the process
+and discovers the tools. The default providers require internet access.
 
-```json
-{
-  "mcpServers": {
-    "spatial-reasoning": {
-      "command": "/absolute/path/to/.venv/bin/python",
-      "args": ["-m", "spatial_reasoning_mcp"],
-      "cwd": "/absolute/path/to/spatial-reasoning-mcp"
-    }
-  }
-}
+## Plan a day
+
+Try this in your MCP client:
+
+> Plan a day in Atlanta. Start from Georgia Tech at 09:00 on December 3, 2026.
+> Spend 45 minutes at Piedmont Park, then arrive at the High Museum of Art at
+> 12:30 and spend 90 minutes there. Walk, allow 10 minutes of buffer per leg,
+> and remind me 5 minutes before departure. Save the itinerary as an ICS file.
+
+1. The client calls `geocode_place` for the origin and each stop. Add the city to
+   the query, inspect the returned names, and resolve ambiguous matches.
+2. The client calls `plan_day` with the resolved places in visiting order. Give
+   the itinerary a stable ID, pass an IANA zone such as `America/New_York`,
+   and include UTC offsets in timestamps. Each stop needs `stay_minutes`.
+   Set a stop's `starts_at` for a fixed appointment. Omit it to start as early
+   as feasible.
+3. The server calculates travel time with the configured router and adds the
+   requested buffer. If a fixed appointment cannot be reached, it reports
+   the earliest feasible arrival. The client can then ask which constraint
+   can move.
+4. Present the returned `items` as a chronological list. Save the `ics` string
+   as an `.ics` file and import it into a calendar with notifications enabled.
+   Each travel event carries a departure alarm. The calendar app delivers it,
+   including after the MCP client exits. Import and alarm behavior varies by
+   calendar app. Use `geojson` to plot numbered stop markers in Leaflet.
+
+The planner follows the supplied order within one local day and uses one
+transport mode. Calendar import is a separate step. The server has no calendar
+account integration, background scheduler, live traffic refresh, or map UI.
+The GeoJSON includes points for stops. Route geometry is currently unavailable.
+
+## Tools and project structure
+
+- [server.py](spatial_reasoning_mcp/server.py) registers the tools with the Python
+  MCP SDK. [__main__.py](spatial_reasoning_mcp/__main__.py) starts the stdio server.
+- [geocode.py](spatial_reasoning_mcp/geocode.py) implements `geocode_place`
+  and `reverse_geocode` using OpenStreetMap Nominatim.
+- [geometry.py](spatial_reasoning_mcp/geometry.py) implements
+  `distance_between` for great-circle distance and `point_in_region`
+  for lookup against a local GeoJSON boundary layer.
+- [routing.py](spatial_reasoning_mcp/routing.py) implements `route_between`
+  and `order_stops` for walk, bike, and drive. `order_stops` keeps the first
+  point fixed and minimizes travel time for up to eight points. It does not
+  account for appointment windows. Use `plan_day` to validate the resulting
+  order against those windows.
+- [itinerary.py](spatial_reasoning_mcp/itinerary.py) schedules activities and
+  travel legs, then exports the same schedule as items, GeoJSON, and iCalendar.
+
+The host chooses and invokes tools. The service modules do the calculations and
+return data from named sources. To add a tool, implement and test its behavior
+in a service module, then register a typed wrapper with `@mcp.tool()` in
+`server.py`. For a new routing provider, extend the backend selection in
+`routing.py` and return comparable durations, distances, and provenance.
+Use WGS84 coordinates at the GeoJSON boundary and `[longitude, latitude]`
+for GeoJSON positions.
+
+## Provider configuration
+
+- `SRM_ROUTING_BACKEND=valhalla` is the default. It uses the hosted router at
+  `VALHALLA_URL`, which defaults to the public FOSSGIS instance.
+- `SRM_ROUTING_BACKEND=osmnx` uses a local graph. Install the optional
+  dependencies with `.venv/bin/python -m pip install '.[routing]'`.
+  Graph creation downloads OSM data. Cached graphs live under
+  `${SRM_CACHE:-.cache}/graphs`. This backend suits small areas and computes
+  travel time from a configured speed for each mode.
+- `NOMINATIM_URL` and `NOMINATIM_USER_AGENT` configure place lookup. Follow the
+  public provider's [usage policy](https://operations.osmfoundation.org/policies/nominatim/)
+  when using the default endpoint.
+
+Set these in the MCP client's server environment. Routing errors are returned
+to the client so it can report the failure or revise the request.
+
+## References and development
+
+The official MCP tutorial shows how to register typed tools and launch a local
+stdio server. Amap's travel example demonstrates composing place search and
+route queries into a map users can open. This repository uses the same workflow
+shape with OSM providers and adds a timed schedule and calendar export. Amap is
+a design reference. The current server ships Valhalla and OSMnx routing.
+[MCP server tutorial](https://modelcontextprotocol.io/docs/develop/build-server) ·
+[Amap travel-planning example](https://developer.amap.com/api/mcp-server/application-case/travel-planning-case) ·
+[Leaflet GeoJSON guide](https://leafletjs.com/examples/geojson/)
+
+```sh
+.venv/bin/python -m pip install pytest
+.venv/bin/python -m pytest -q
 ```
 
-To see the tools work without a client, run `python scripts/smoke.py`, which
-calls each one against live data and prints the results.
-
-## Routing backends
-
-Set `SRM_ROUTING_BACKEND` to choose. All six tools work on either.
-
-**`valhalla`** (default) calls a hosted OpenStreetMap router, by default the
-public FOSSGIS instance. It answers in under a second and downloads nothing.
-It needs that service to be up, and the public instance is rate limited, so
-point `VALHALLA_URL` at your own instance for heavy use.
-
-**`osmnx`** downloads the street network for the area and routes locally. It
-needs `osmnx` and `networkx` installed. The first call for an area is slow: a
-walking network includes every footpath, and the cost grows with the square of
-the radius, so expect tens of seconds for a neighborhood. The graph is cached
-in `.cache/graphs` afterwards, and later calls over the same area take about a
-second. Set `SRM_CACHE` to move that cache.
-
-This is a trade-off, not a fallback. Use the hosted router when latency
-matters, and the local graph when a number has to be reproducible later from
-data you hold, or when there is no network.
-
-## Tests
-
-```bash
-pip install pytest
-python -m pytest tests -q
-```
-
-18 tests, none of which touch the network. The geocoding and routing tools are
-covered for the behavior that matters most, that they raise instead of
-returning a value they could not compute. `order_stops` is tested against a
-known travel-time matrix, so its optimality claim is checked rather than
-assumed.
-
-## Evaluation
-
-Three harnesses in `eval/`, covering accuracy, latency and scaling. Each states
-what it measured against: distance is scored against geopy's geodesic rather
-than against this server's own output, and routing is treated as having no
-absolute ground truth, because a travel time is whatever a particular network
-and speed model says it is. See `eval/README.md`.
-
-```bash
-python eval/make_benchmark.py   # resolve and freeze 12 place pairs
-python eval/accuracy.py         # error against an independent geodesic
-python eval/latency.py 5        # per-tool latency, local and network separated
-python eval/scaling.py          # how cost grows with the number of stops
-```
-
-### Results
-
-Measured 17 October 2026 on an M-series MacBook Air, routing backend
-`valhalla` against the public FOSSGIS instance, client in Shanghai.
-
-**Accuracy of `distance_between`**, 12 pairs from 1 km to 27 km, scored against
-geopy's WGS84 geodesic:
-
-| | median error | worst error |
-|---|---|---|
-| this server | 0.18 % | 0.31 % |
-| [MODEL NAME], from memory, no tools | 1.7 % | 13.1 % |
-
-The server's error is the cost of modeling the Earth as a sphere rather than an
-ellipsoid. It is now a measured bound rather than an assumption: at 25 km the
-worst case is about 75 m. The approximation is kept because it needs no
-dependency and no network; anything needing survey accuracy should use a
-geodesic.
-
-Three things matter more than the ratio of medians.
-
-The benchmark favors the model. All twelve pairs are world-famous landmarks
-whose distances appear repeatedly in text. On ordinary streets or census-tract
-centroids the gap would be wider, so 9x is a floor, not a typical figure.
-
-The model's error is unpredictable rather than large. It was 0.2 % on the
-Eiffel Tower pair and 13.1 % on the Georgia Tech pair, with nothing in either
-answer to say which kind it was. The server's error has a known ceiling.
-
-The model's absolute error barely tracks distance: about 110 m typically and up
-to 550 m, whether the question spans 1 km or 27 km. Relative error is therefore
-worst at short range, which is the range that first- and last-mile and
-itinerary questions live in.
-
-**Latency**, median of five calls:
-
-| tool | median |
-|---|---|
-| `distance_between` | under 0.1 ms |
-| `geocode_place` | 994 ms |
-| `reverse_geocode` | 1,031 ms |
-| `route_between` | 1,025 ms |
-
-The two geocoding figures are dominated by the one-request-per-second limit the
-client enforces for Nominatim, not by the service. The routing figure is a real
-round trip to Germany; a nearer or self-hosted Valhalla would cut it.
-
-**Scaling** of `order_stops`, against a stub router so the figure is this
-project's own search:
-
-| stops | orderings | search |
-|---|---|---|
-| 4 | 6 | 0.02 ms |
-| 6 | 120 | 0.10 ms |
-| 8 | 5,040 | 4.51 ms |
-
-Each additional stop multiplies the search by n−1: nine stops would be 8x the
-work of eight, twelve stops 7,920x. The eight-stop limit is where exhaustive
-search stops being affordable, and therefore where the word "optimal" would
-stop being honest.
-
-**Not measured.** Whether an agent using these tools answers better than one
-answering from memory. That needs an end-to-end agent benchmark with a task set
-and a definition of correct, which this evaluation does not attempt. What is
-measured above is the accuracy of the computation the tools perform, and the
-cost of performing it.
-
-## Limitations
-
-The `osmnx` backend downloads a disc around the midpoint of the points it is
-given, so its cost grows with the square of the distance between them. It suits
-a neighborhood, not a city. Routing engines avoid this by preprocessing a whole
-region into an index; this project calls one rather than reimplementing it.
-
-`order_stops` stops at eight stops because the search is exhaustive. Beyond
-that this is the traveling salesman problem and needs a heuristic, at which
-point "optimal" would stop being the right word for what is returned.
-
-Nominatim's usage policy requires an identifying User-Agent and at most one
-request per second. Both are enforced in `geocode.py`; set `NOMINATIM_URL` and
-`NOMINATIM_USER_AGENT` to use your own instance.
+See [AGENTS.md](AGENTS.md) for contributor-agent instructions,
+[example prompts](examples/queries.md) for more requests, and
+[evaluation](eval/README.md) for benchmarks and recorded results.

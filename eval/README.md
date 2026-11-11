@@ -57,6 +57,73 @@ logic rather than a service's load on the day.
 
 ## Reporting
 
-Put the numbers you get in the top-level README with the date and the machine
+Record the numbers you get in this file with the date and the machine
 they came from. A latency figure without a machine, or an accuracy figure
 without its reference, is not a result.
+
+## Recorded results
+
+Measured 17 October 2026 on an M-series MacBook Air, routing backend
+`valhalla` against the public FOSSGIS instance, client in Shanghai.
+
+**Accuracy of `distance_between`**, 12 pairs from 1 km to 27 km, scored against
+geopy's WGS84 geodesic:
+
+| | median error | worst error |
+|---|---|---|
+| this server | 0.18 % | 0.31 % |
+| [MODEL NAME], from memory, no tools | 1.7 % | 13.1 % |
+
+The server's error is the cost of modeling the Earth as a sphere rather than an
+ellipsoid. It is now a measured bound rather than an assumption: at 25 km the
+worst case is about 75 m. The approximation is kept because it needs no
+dependency and no network; anything needing survey accuracy should use a
+geodesic.
+
+Three things matter more than the ratio of medians.
+
+The benchmark favors the model. All twelve pairs are world-famous landmarks
+whose distances appear repeatedly in text. On ordinary streets or census-tract
+centroids the gap would be wider, so 9x is a floor, not a typical figure.
+
+The model's error is unpredictable rather than large. It was 0.2 % on the
+Eiffel Tower pair and 13.1 % on the Georgia Tech pair, with nothing in either
+answer to say which kind it was. The server's error has a known ceiling.
+
+The model's absolute error barely tracks distance: about 110 m typically and up
+to 550 m, whether the question spans 1 km or 27 km. Relative error is therefore
+worst at short range, which is the range that first- and last-mile and
+itinerary questions live in.
+
+**Latency**, median of five calls:
+
+| tool | median |
+|---|---|
+| `distance_between` | under 0.1 ms |
+| `geocode_place` | 994 ms |
+| `reverse_geocode` | 1,031 ms |
+| `route_between` | 1,025 ms |
+
+The two geocoding figures are dominated by the one-request-per-second limit the
+client enforces for Nominatim, not by the service. The routing figure is a real
+round trip to Germany; a nearer or self-hosted Valhalla would cut it.
+
+**Scaling** of `order_stops`, against a stub router so the figure is this
+project's own search:
+
+| stops | orderings | search |
+|---|---|---|
+| 4 | 6 | 0.02 ms |
+| 6 | 120 | 0.10 ms |
+| 8 | 5,040 | 4.51 ms |
+
+Each additional stop multiplies the search by n−1: nine stops would be 8x the
+work of eight, twelve stops 7,920x. The eight-stop limit is where exhaustive
+search stops being affordable, and therefore where the word "optimal" would
+stop being honest.
+
+**Not measured.** Whether an agent using these tools answers better than one
+answering from memory. That needs an end-to-end agent benchmark with a task set
+and a definition of correct, which this evaluation does not attempt. What is
+measured above is the accuracy of the computation the tools perform, and the
+cost of performing it.
