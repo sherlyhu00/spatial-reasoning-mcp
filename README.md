@@ -4,6 +4,28 @@ An MCP server that gives an LLM agent real geospatial computation as tools, so
 that spatial claims in an answer are computed from a named source rather than
 recalled from the model's parameters.
 
+## Plan a day with departure reminders
+
+Ask your local MCP agent to resolve your starting point and destinations, then
+call `plan_day` with the stops in visiting order. Provide a start time, a time
+zone such as `Asia/Shanghai`, and a stay duration for each stop. Include
+`starts_at` on fixed appointments. The tool checks whether each appointment
+can be reached, and schedules flexible stops as early as possible.
+
+For example: “Start from my hotel at 09:00, walk to the museum for 90 minutes,
+then arrive at the restaurant by 12:30. Leave 10 minutes of travel buffer and
+remind me 5 minutes before departure.”
+
+The tool returns a chronological list, WGS84 stop markers for Leaflet, and
+iCalendar text. Save the `ics` field as `itinerary.ics` and import it into
+a calendar with notifications enabled. Departure events carry a display alarm.
+The calendar app handles notification delivery, so the local agent can exit
+after generating the schedule. Calendar import behavior depends on the app.
+
+The route estimate uses the configured Valhalla or OSMnx backend. Calendar
+export is local. The tool takes the day's plans as input and does not access
+calendar accounts or monitor live traffic.
+
 ## Why
 
 Ask a language model how far apart two places are, or how long a multi-stop

@@ -5,9 +5,11 @@ modules in this package and lets SpatialToolError propagate, so a failure
 reaches the agent as a failure instead of becoming an invented number.
 """
 
+from datetime import datetime
+
 from mcp.server.mcpserver import MCPServer
 
-from . import geocode, geometry, routing
+from . import geocode, geometry, itinerary, routing
 
 mcp = MCPServer(
     name="spatial-reasoning",
@@ -59,6 +61,23 @@ def order_stops(stops: list[dict], mode: str = "walk", buffer_m: int = 2000) -> 
     stops: [{"name": "...", "lat": 0.0, "lon": 0.0}, ...]
     """
     return routing.order_stops(stops, mode, buffer_m)
+
+
+@mcp.tool()
+def plan_day(
+    itinerary_id: str, starts_at: datetime, time_zone: str,
+    origin: itinerary.Place, stops: list[itinerary.Stop], mode: str = "walk",
+    buffer_minutes: int = 10, reminder_minutes: int = 5,
+) -> dict:
+    """Schedule ordered stops and return timed items, map points, and an ICS with departure alarms.
+
+    Resolve place coordinates first. Supply ISO 8601 datetimes with offsets and an
+    IANA time zone. Omit a stop's starts_at to schedule it as early as feasible.
+    Reuse itinerary_id for revisions to the same ordered itinerary.
+    """
+    return itinerary.plan_day(
+        itinerary_id, starts_at, time_zone, origin, stops, mode, buffer_minutes, reminder_minutes,
+    )
 
 
 def main() -> None:

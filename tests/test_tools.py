@@ -27,6 +27,7 @@ def test_server_exposes_every_tool():
         "point_in_region",
         "route_between",
         "order_stops",
+        "plan_day",
     }
 
 
